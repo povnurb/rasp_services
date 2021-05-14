@@ -6,13 +6,13 @@ services:
     image: mongo:4.4
     restart: always
     environment: 
-      TZ: "America/Mexico_City"
-      MONGO_INITDB_ROOT_USERNAME: "devuser"
-      MONGO_INITDB_ROOT_PASSWORD: "devpassword"
+      TZ: "${TZ}"
+      MONGO_INITDB_ROOT_USERNAME: "${MONGO_USERNAME}"
+      MONGO_INITDB_ROOT_PASSWORD: "${MONGO_PASSWORD}"
     volumes:
       - ./mongodata:/data/db
     ports: 
-      - 27017:27017
+      - ${MONGO_EXT_PORT}:27017
   emqx:
     container_name: emqx
     image: emqx/emqx:4.2.3
@@ -21,12 +21,15 @@ services:
       - 18083:18083
       - 18084:18084
       - 1883:1883
+      - 8883:8883
       - 8083:8083
       - 8084:8084
       - 8085:8081
 
     links: 
       - mongo
+    extra_hosts: 
+      - "localhost:192.168.1.77"
 
     environment: 
       EMQX_NAME: ioticos-gl
@@ -34,6 +37,9 @@ services:
       TZ: "America/Mexico_City"
 
       EMQX_DASHBOARD__DEFAULT_USER__PASSWORD: "emqxdashpass"
+
+      #DEFAUlt app secret
+      EMQX_MANAGEMENT__DEFAULT_APPLICATION__SECRET: "emqxsecret"
 
       EMQX_ALLOW_ANONYMOUS: "false"
       EMQX_NOMATCH: "deny"
@@ -48,7 +54,7 @@ services:
       EMQX_AUTH__MONGO__PASSWORD: "devpassword"
       EMQX_AUTH__MONGO__AUTH_SOURCE: admin
 
-      EMQX_AUTH__MONGO__DATABASE: "iotgl"
+      EMQX_AUTH__MONGO__DATABASE: "ioticos_god_level"
       EMQX_AUTH__MONGO__AUTH_QUERY__COLLECTION: "emqxauthrules"
 
       #super usuarios
